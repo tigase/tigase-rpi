@@ -4,9 +4,11 @@
 package tigase.rpi.sensors;
 
 import java.io.IOException;
+import java.util.Collection;
+import tigase.rpi.sensors.base.SensorValue;
 
 public interface Sensor {
 
-	float[] getValues() throws IOException;
+	Collection<SensorValue> getValues() throws IOException;
 
 }

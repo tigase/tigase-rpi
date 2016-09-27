@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * @author Artur Hefczyc <artur.hefczyc at tigase.net>
  */
 public class StateDevice  extends DigitalDevice {
-  private DeviceStatus status = DeviceStatus.OFF;
+  private DeviceStatus status = DeviceStatus.ON;
 
 	public StateDevice(int port) throws IOException, InterruptedException, Exception {
 		super(port);
@@ -60,7 +60,9 @@ public class StateDevice  extends DigitalDevice {
    * @throws IOException
    */
   public void turnOn() throws IOException{
-    write(getOnValue());
+    if (status != DeviceStatus.ON) {
+			write(getOnValue());
+		}
   }
 
   /**
@@ -68,7 +70,9 @@ public class StateDevice  extends DigitalDevice {
    * @throws IOException
    */
   public void turnOff() throws IOException{
-    write(getOffValue());
+    if (status != DeviceStatus.OFF) {
+			write(getOffValue());
+		}
   }
 
   /**
@@ -86,11 +90,9 @@ public class StateDevice  extends DigitalDevice {
    */
   public void setStatus(DeviceStatus status) throws IOException{
 
-		//System.out.println("Setting status: " + status + " for sensor: " + getPort());
-
-		if (status == DeviceStatus.OFF){
+		if (status == DeviceStatus.OFF) {
       turnOff();
-    }else{
+		} else {
       turnOn();
     }
   }

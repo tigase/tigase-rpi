@@ -6,11 +6,22 @@ import tigase.rpi.utils.Commands;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import tigase.rpi.sensors.base.SensorValue;
 
 public class DHTDigitalSensor extends Device implements Sensor {
-  private int moduleType = 0;
-  private int scale = 0;
-  public static final int MODULE_DHT11 = 0;
+
+	public static final String TEMP_DESCR = "DHT Temperature";
+	public static final String TEMP_NAME = "T";
+	public static final String TEMP_UNIT_C = "C";
+	public static final String TEMP_UNIT_F = "F";
+	public static final String HUMD_DESCR = "DHT Humidity";
+	public static final String HUMD_NAME = "H";
+	public static final String HUMD_UNIT = "%";
+
+	public static final int MODULE_DHT11 = 0;
   public static final int MODULE_DHT22 = 1;
   public static final int MODULE_DHT21 = 2;
   public static final int MODULE_AM2301 = 3;
@@ -18,7 +29,23 @@ public class DHTDigitalSensor extends Device implements Sensor {
   public static final int SCALE_C = 0;
   public static final int SCALE_F = 1;
 
+  private int moduleType = 0;
+  private int scale = 0;
   private byte[] bytes;
+	private Map<String, SensorValue> results = new HashMap();
+	private SensorValue temp;
+	private SensorValue hum;
+
+  public DHTDigitalSensor(int pin, int moduleType, int scale) throws IOException, InterruptedException, Exception {
+		super(pin);
+		this.moduleType = moduleType;
+		this.scale = scale;
+		String sc = (scale == SCALE_C ? TEMP_UNIT_C : TEMP_UNIT_F);
+		temp = new SensorValue(TEMP_DESCR, TEMP_NAME, sc, 0f);
+		hum = new SensorValue(HUMD_DESCR, HUMD_NAME, HUMD_UNIT, 0f);
+		results.put(TEMP_DESCR, temp);
+		results.put(HUMD_DESCR, hum);
+  }
 
   private float convertCtoF(double temp) {
 	  return (float) temp * 9 / 5 + 32;
@@ -43,12 +70,6 @@ public class DHTDigitalSensor extends Device implements Sensor {
 		          -0.00000199  * Math.pow(temp, 2) * Math.pow(hum, 2);
 
 	  return (float) (needsConversion ? this.convertFtoC(hi) : hi);
-  }
-
-  public DHTDigitalSensor(int pin, int moduleType, int scale) throws IOException, InterruptedException, Exception {
-		super(pin);
-		this.moduleType = moduleType;
-		this.scale = scale;
   }
 
 	private void storeBytes() throws IOException {
@@ -76,9 +97,17 @@ public class DHTDigitalSensor extends Device implements Sensor {
 		return new float[]{temp, hum , heatIndex};
 	}
 
+//	@Override
+//	public float[] getValues() throws IOException {
+//		return read();
+//	}
+
 	@Override
-	public float[] getValues() throws IOException {
-		return read();
+	public Collection<SensorValue> getValues() throws IOException {
+		float[] res = read();
+		temp.updateValue(res[0]);
+		hum.updateValue(res[1]);
+		return results.values();
 	}
 
 }

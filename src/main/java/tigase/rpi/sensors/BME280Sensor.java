@@ -8,6 +8,10 @@ package tigase.rpi.sensors;
 import tigase.rpi.sensors.base.I2cDevice;
 import tigase.rpi.sensors.Sensor;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import tigase.rpi.sensors.base.SensorValue;
 
 /**
  *
@@ -15,12 +19,42 @@ import java.io.IOException;
  */
 public class BME280Sensor extends I2cDevice implements Sensor {
 
+	public static final String TEMP_DESCR = "BME280 Temperature";
+	public static final String TEMP_NAME = "T";
+	public static final String TEMP_UNIT_C = "C";
+	public static final String TEMP_UNIT_F = "F";
+	public static final String HUMD_DESCR = "BME280 Humidity";
+	public static final String HUMD_NAME = "H";
+	public static final String HUMD_UNIT = "%";
+	public static final String PRES_DESCR = "BME280 Pressure";
+	public static final String PRES_NAME = "P";
+	public static final String PRES_UNIT = "hPa";
+
 	private static final int BME280_ADDR = 0x76;
 	private static final int CHIP_ID_REG  = 0xD0;
 
-	public BME280Sensor() throws IOException, InterruptedException, Exception {
+	private Map<String, SensorValue> results = new HashMap();
+	private SensorValue temp;
+	private SensorValue hum;
+	private SensorValue pres;
+	private static BME280Sensor sensor = null;
+
+	public static BME280Sensor getInstance() throws Exception {
+		if (sensor == null) {
+			sensor = new BME280Sensor();
+		}
+		return sensor;
+	}
+
+	private BME280Sensor() throws IOException, InterruptedException, Exception {
 		super(BME280_ADDR);
 		init();
+		temp = new SensorValue(TEMP_DESCR, TEMP_NAME, TEMP_UNIT_C, 0f);
+		hum = new SensorValue(HUMD_DESCR, HUMD_NAME, HUMD_UNIT, 0f);
+		pres = new SensorValue(PRES_DESCR, PRES_NAME, PRES_UNIT, 0f);
+		results.put(TEMP_DESCR, temp);
+		results.put(HUMD_DESCR, hum);
+		results.put(PRES_DESCR, pres);
 	}
 
   protected final void init() throws IOException {
@@ -292,14 +326,23 @@ public class BME280Sensor extends I2cDevice implements Sensor {
 		return res;
 	}
 
+//	@Override
+//	public float[] getValues() throws IOException {
+//		double[] vals = readBME280All();
+//		float[] res = new float[vals.length];
+//		for (int i = 0; i < res.length; i++) {
+//			res[i] = (float)vals[i];
+//		}
+//		return res;
+//	}
+
 	@Override
-	public float[] getValues() throws IOException {
-		double[] vals = readBME280All();
-		float[] res = new float[vals.length];
-		for (int i = 0; i < res.length; i++) {
-			res[i] = (float)vals[i];
-		}
-		return res;
+	public Collection<SensorValue> getValues() throws IOException {
+		double[] res = readBME280All();
+		temp.updateValue((float)res[0]);
+		hum.updateValue((float)res[1]);
+		pres.updateValue((float)res[2]);
+		return results.values();
 	}
 
 }

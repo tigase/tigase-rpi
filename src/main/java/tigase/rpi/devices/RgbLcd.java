@@ -40,11 +40,13 @@ public class RgbLcd extends I2cDevice {
 	}
 
   protected final void init() throws IOException {
-      write(DISPLAY_RGB_ADDR, 0, 0);
-      write(DISPLAY_RGB_ADDR, 1, 0);
+      write(DISPLAY_RGB_ADDR, 0, 0);         // backlight init
+			write(DISPLAY_RGB_ADDR, 1, 0);         // set LEDs controllable by both PWM and GRPPWM registers
+			// set MODE2 values
+			// 0010 0000 -> 0x20  (DMBLNK to 1, ie blinky mode)
       write(DISPLAY_RGB_ADDR, 0x08, 0xaa);
-      write(DISPLAY_TEXT_ADDR, LCD_COMMAND, 0x08 | 0x04); // display on, no cursor
-      write(DISPLAY_TEXT_ADDR, LCD_COMMAND, 0x28); // 2 Lines
+      write(DISPLAY_TEXT_ADDR, LCD_COMMAND, 0x08 | 0x04);       // display on, no cursor
+      write(DISPLAY_TEXT_ADDR, LCD_COMMAND, 0x28);              // 2 Lines
       write(DISPLAY_TEXT_ADDR, LCD_COMMAND, LCD_CLEARDISPLAY); // clear Display
 			sleep(50);
   }
