@@ -5,7 +5,7 @@
  */
 package tigase.rpi;
 
-import tigase.rpi.utils.Statuses;
+import tigase.rpi.utils.Status;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPin;
@@ -67,7 +67,7 @@ public class Pi2GroverBoard extends Board {
 	@Override
 	public int setPinMode(int pin, int pinMode) throws IOException {
 		Gpio.pinMode (RaspiPin.getPinByAddress(pin).getAddress(), pinMode);
-		return Statuses.OK;
+		return Status.OK;
 	}
 
 	@Override
@@ -83,13 +83,13 @@ public class Pi2GroverBoard extends Board {
 	@Override
 	public int digitalWriteToPin(int port, int val) throws IOException {
 		Gpio.digitalWrite(RaspiPin.getPinByAddress(port).getAddress(), val);
-		return Statuses.OK;
+		return Status.OK;
 	}
 
 	@Override
 	public int analogWriteToPin(int port, int val) throws IOException {
 		Gpio.analogWrite(RaspiPin.getPinByAddress(port).getAddress(), val);
-		return Statuses.OK;
+		return Status.OK;
 	}
 
 }

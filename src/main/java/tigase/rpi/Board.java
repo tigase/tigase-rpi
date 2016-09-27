@@ -1,6 +1,6 @@
 package tigase.rpi;
 
-import tigase.rpi.utils.Statuses;
+import tigase.rpi.utils.Status;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
@@ -73,14 +73,14 @@ public abstract class Board {
   public int writeI2c(int deviceAddr, byte... buffer) throws IOException {
 		I2CDevice dev = bus.getDevice(deviceAddr);
     dev.write(buffer);
-    return Statuses.OK;
+    return Status.OK;
 
   }
 
   public int writeI2c(int deviceAddr, int regAddr, byte... buffer) throws IOException {
 		I2CDevice dev = bus.getDevice(deviceAddr);
     dev.write(regAddr, buffer);
-    return Statuses.OK;
+    return Status.OK;
 
   }
 

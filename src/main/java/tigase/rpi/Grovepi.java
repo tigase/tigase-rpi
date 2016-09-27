@@ -2,7 +2,7 @@ package tigase.rpi;
 
 import tigase.rpi.events.SensorEvent;
 import tigase.rpi.events.StatusEvent;
-import tigase.rpi.utils.Statuses;
+import tigase.rpi.utils.Status;
 import tigase.rpi.utils.I2CScanner;
 import java.io.IOException;
 import java.util.*;
@@ -61,7 +61,7 @@ public final class Grovepi {
 //    debug.log(Debug.FINE, "Init " + isInit);
     //board.init();
     isInit = true;
-    StatusEvent statusEvent = new StatusEvent(this, Statuses.INIT);
+    StatusEvent statusEvent = new StatusEvent(this, Status.INIT);
     fireEvent(statusEvent);
   }
 

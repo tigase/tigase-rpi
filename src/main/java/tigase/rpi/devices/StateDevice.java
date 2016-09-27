@@ -7,7 +7,7 @@ package tigase.rpi.devices;
 
 import tigase.rpi.sensors.base.DeviceStatus;
 import tigase.rpi.sensors.base.DigitalDevice;
-import tigase.rpi.utils.Statuses;
+import tigase.rpi.utils.Status;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -115,7 +115,7 @@ public class StateDevice  extends DigitalDevice {
    */
   @Override
   public int write(int value) throws IOException {
-    int res = Statuses.ERROR;
+    int res = Status.ERROR;
 		if (value <= getMinValue()){
       status = DeviceStatus.OFF;
       res = super.write(getOffValue());

@@ -6,7 +6,7 @@
 package tigase.rpi;
 
 import tigase.rpi.utils.Commands;
-import tigase.rpi.utils.Statuses;
+import tigase.rpi.utils.Status;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -91,13 +91,13 @@ public class GrovePiBoard extends Board {
 	@Override
 	public int digitalWriteToPin(int port, int val) throws IOException {
 		write(convertToBytes(Commands.AWRITE, port, val, Commands.UNUSED));
-		return Statuses.OK;
+		return Status.OK;
 	}
 
 	@Override
 	public int analogWriteToPin(int port, int val) throws IOException {
 		write(convertToBytes(Commands.DWRITE, port, val, Commands.UNUSED));
-		return Statuses.OK;
+		return Status.OK;
 	}
 
 }
