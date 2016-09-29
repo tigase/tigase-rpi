@@ -60,9 +60,9 @@ public class CPUTemp implements Sensor {
 		}
 
 	@Override
-	public Collection<SensorValue> getValues() throws IOException {
+	public Map<String, SensorValue> getValues() throws IOException {
 		temp.updateValue(getCPUTemp());
-		return results.values();
+		return results;
 	}
 
 }

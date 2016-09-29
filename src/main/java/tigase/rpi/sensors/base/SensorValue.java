@@ -58,4 +58,8 @@ public class SensorValue {
 		return String.format("%1$.2f", value);
 	}
 
+	public String toString() {
+		return description + ": " + getStrValue() + unit;
+	}
+
 }

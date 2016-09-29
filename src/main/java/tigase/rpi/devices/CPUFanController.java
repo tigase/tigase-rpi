@@ -17,26 +17,41 @@
 package tigase.rpi.devices;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tigase.rpi.sensors.CPUTemp;
+import tigase.rpi.sensors.Sensor;
+import tigase.rpi.sensors.base.DeviceStatus;
+import tigase.rpi.sensors.base.SensorValue;
 import tigase.rpi.utils.CommonTimer;
 
 /**
  *
  * @author Artur Hefczyc <artur.hefczyc at tigase.net>
  */
-public class CPUFanController extends TimerTask {
+public class CPUFanController extends TimerTask implements Sensor {
 
 	public static final String CPU_TEMP_TRESHOLD = "cpu-threshold";
+	public static final String LED_DESCR = "CPU FanController Led";
+	public static final String LED_NAME = "FL";
+	public static final String LED_UNIT = "";
+	public static final String RELAY_DESCR = "CPU FanController Relay";
+	public static final String RELAY_NAME = "FR";
+	public static final String RELAY_UNIT = "";
 
 	private static CPUFanController fc = null;
 
 	private CPUTemp cpu = null;
 	private Led led = null;
 	private Relay relay = null;
+	private SensorValue ledVal;
+	private SensorValue relayVal;
+	private Map<String, SensorValue> results = new HashMap();
 
 	public static CPUFanController getInstance(int ledPin, int relayPin) throws Exception {
 		if (fc == null) {
@@ -49,6 +64,10 @@ public class CPUFanController extends TimerTask {
 		cpu = CPUTemp.getInstance();
 		led = new Led(ledPin);
 		relay = new Relay(relayPin);
+		ledVal = new SensorValue(LED_DESCR, LED_NAME, LED_UNIT, (led.getStatus() == DeviceStatus.ON ? led.getOnValue() : led.getOffValue()));
+		results.put(LED_DESCR, ledVal);
+		relayVal = new SensorValue(RELAY_DESCR, RELAY_NAME, RELAY_UNIT, (relay.getStatus() == DeviceStatus.ON ? relay.getOnValue() : relay.getOffValue()));
+		results.put(RELAY_DESCR, relayVal);
 		CommonTimer.schedule(this, TimeUnit.SECONDS.toMillis(30), TimeUnit.SECONDS.toMillis(30));
 	}
 
@@ -67,6 +86,15 @@ public class CPUFanController extends TimerTask {
 			Logger.getLogger(CPUFanController.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
+	}
+
+	@Override
+	public Map<String, SensorValue> getValues() throws IOException {
+		ledVal.updateValue((led.getStatus() == DeviceStatus.ON ? led.getOnValue() : led.getOffValue()));
+		relayVal.updateValue((relay.getStatus() == DeviceStatus.ON ? relay.getOnValue() : relay.getOffValue()));
+		Map<String, SensorValue> res = new HashMap<String, SensorValue>(results);
+		res.putAll(cpu.getValues());
+		return res;
 	}
 
 }

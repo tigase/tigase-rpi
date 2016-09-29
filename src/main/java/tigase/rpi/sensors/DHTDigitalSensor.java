@@ -103,11 +103,11 @@ public class DHTDigitalSensor extends Device implements Sensor {
 //	}
 
 	@Override
-	public Collection<SensorValue> getValues() throws IOException {
+	public Map<String, SensorValue> getValues() throws IOException {
 		float[] res = read();
 		temp.updateValue(res[0]);
 		hum.updateValue(res[1]);
-		return results.values();
+		return results;
 	}
 
 }

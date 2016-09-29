@@ -337,12 +337,12 @@ public class BME280Sensor extends I2cDevice implements Sensor {
 //	}
 
 	@Override
-	public Collection<SensorValue> getValues() throws IOException {
+	public Map<String, SensorValue> getValues() throws IOException {
 		double[] res = readBME280All();
 		temp.updateValue((float)res[0]);
 		hum.updateValue((float)res[1]);
 		pres.updateValue((float)res[2]);
-		return results.values();
+		return results;
 	}
 
 }

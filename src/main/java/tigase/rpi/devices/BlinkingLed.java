@@ -17,27 +17,52 @@
 package tigase.rpi.devices;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tigase.rpi.sensors.Sensor;
+import tigase.rpi.sensors.base.DeviceStatus;
+import tigase.rpi.sensors.base.SensorValue;
 import tigase.rpi.utils.CommonTimer;
 
 /**
  *
  * @author Artur Hefczyc <artur.hefczyc at tigase.net>
  */
-public class BlinkingLed extends TimerTask {
+public class BlinkingLed extends TimerTask implements Sensor {
+
+	public static final String LED_DESCR = "Blinking Led";
+	public static final String LED_NAME = "BL";
+	public static final String LED_UNIT = "";
 
 	private long delay;
 	private Led led;
+	private SensorValue val;
+	private Map<String, SensorValue> results = new HashMap();
+
 
 	public BlinkingLed(int pin, long delay) throws Exception {
 		super();
 		this.delay = delay;
 
 		led = new Led(pin);
+		val = new SensorValue(LED_DESCR, LED_NAME, LED_UNIT, (led.getStatus() == DeviceStatus.ON ? led.getOnValue() : led.getOffValue()));
+		results.put(LED_DESCR, val);
 		CommonTimer.schedule(this, delay, delay);
+	}
+
+	public DeviceStatus getStatus() {
+		return led.getStatus();
+	}
+
+	@Override
+	public Map<String, SensorValue> getValues() throws IOException {
+		val.updateValue((led.getStatus() == DeviceStatus.ON ? led.getOnValue() : led.getOffValue()));
+		return results;
 	}
 
 	public void run() {
