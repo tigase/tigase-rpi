@@ -1,25 +1,20 @@
 package tigase.rpi.sensors;
 
-import tigase.rpi.sensors.base.Device;
-import tigase.rpi.sensors.Sensor;
-import tigase.rpi.utils.Commands;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import tigase.rpi.sensors.base.Device;
 import tigase.rpi.sensors.base.SensorValue;
+import tigase.rpi.utils.Commands;
 
 public class DHTDigitalSensor extends Device implements Sensor {
 
 	public static final String TEMP_DESCR = "DHT Temperature";
-	public static final String TEMP_NAME = "T";
-	public static final String TEMP_UNIT_C = "C";
-	public static final String TEMP_UNIT_F = "F";
+	public static final String TEMP_NAME = TEMP_SHORT_NAME;
 	public static final String HUMD_DESCR = "DHT Humidity";
-	public static final String HUMD_NAME = "H";
-	public static final String HUMD_UNIT = "%";
+	public static final String HUMD_NAME = HUMD_SHORT_NAME;
 
 	public static final int MODULE_DHT11 = 0;
   public static final int MODULE_DHT22 = 1;
@@ -43,8 +38,8 @@ public class DHTDigitalSensor extends Device implements Sensor {
 		String sc = (scale == SCALE_C ? TEMP_UNIT_C : TEMP_UNIT_F);
 		temp = new SensorValue(TEMP_DESCR, TEMP_NAME, sc, 0f);
 		hum = new SensorValue(HUMD_DESCR, HUMD_NAME, HUMD_UNIT, 0f);
-		results.put(TEMP_DESCR, temp);
-		results.put(HUMD_DESCR, hum);
+		results.put(TEMP_NAME, temp);
+		results.put(HUMD_NAME, hum);
   }
 
   private float convertCtoF(double temp) {
@@ -73,7 +68,6 @@ public class DHTDigitalSensor extends Device implements Sensor {
   }
 
 	private void storeBytes() throws IOException {
-		byte[] buff = new byte[]{};
 		write(convertToBytes(Commands.DHT_TEMP, getPort(), moduleType, Commands.UNUSED));
 		board.sleep(500);
 
