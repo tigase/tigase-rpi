@@ -26,7 +26,7 @@ public class DHTDigitalSensor extends Device implements Sensor {
 
   private int moduleType = 0;
   private int scale = 0;
-  private byte[] bytes;
+  //private byte[] bytes;
 	private Map<String, SensorValue> results = new HashMap();
 	private SensorValue temp;
 	private SensorValue hum;
@@ -52,7 +52,7 @@ public class DHTDigitalSensor extends Device implements Sensor {
 
   private float getHeatIndex(float temp, float hum, int scale) {
 	  boolean needsConversion = scale == DHTDigitalSensor.SCALE_C;
-	  temp = needsConversion ? this.convertCtoF(temp) : temp;
+	  temp = needsConversion ? convertCtoF(temp) : temp;
 
 	  double hi = -42.379 +
 		           2.04901523  * temp +
@@ -64,43 +64,45 @@ public class DHTDigitalSensor extends Device implements Sensor {
 		           0.00085282  * temp * Math.pow(hum, 2) +
 		          -0.00000199  * Math.pow(temp, 2) * Math.pow(hum, 2);
 
-	  return (float) (needsConversion ? this.convertFtoC(hi) : hi);
+	  return (float) (needsConversion ? convertFtoC(hi) : hi);
   }
 
-	private void storeBytes() throws IOException {
+	private synchronized byte[] storeBytes() throws IOException {
+		board.sleep(200);
 		write(convertToBytes(Commands.DHT_TEMP, getPort(), moduleType, Commands.UNUSED));
 		board.sleep(500);
 
 		read(1);
 		board.sleep(200);
 
-		bytes = read(9);
+		return read(9);
   }
 
 	public float[] read() {
+		byte[] bytes = null;
 		try {
-			this.storeBytes();
+			bytes = storeBytes();
 		} catch(IOException e) {
 			System.err.println("IOException: " + e.getMessage());
 		}
 
-		float temp = ByteBuffer.wrap(this.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat(1);
-		float hum = ByteBuffer.wrap(this.bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat(5);
-		float heatIndex = this.getHeatIndex(temp, hum, this.scale);
+		float temp = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat(1);
+		float hum = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat(5);
+		float heatIndex = getHeatIndex(temp, hum, this.scale);
 
 		return new float[]{temp, hum , heatIndex};
 	}
 
-//	@Override
-//	public float[] getValues() throws IOException {
-//		return read();
-//	}
-
 	@Override
 	public Map<String, SensorValue> getValues() throws IOException {
 		float[] res = read();
-		temp.updateValue(res[0]);
-		hum.updateValue(res[1]);
+		// Only update values when data reading was successful.
+		if (res[0] != Float.NaN) {
+			temp.updateValue(res[0]);
+		}
+		if (res[1] != Float.NaN) {
+			hum.updateValue(res[1]);
+		}
 		return results;
 	}
 

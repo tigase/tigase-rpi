@@ -61,7 +61,7 @@ public class BME280Sensor extends I2cDevice implements Sensor {
 		return read(BME280_ADDR, 0xD0, 2);
 	}
 
-	public double[] readBME280All() throws IOException {
+	public synchronized double[] readBME280All() throws IOException {
 
 		// Read blocks of calibration data from EEPROM
 
