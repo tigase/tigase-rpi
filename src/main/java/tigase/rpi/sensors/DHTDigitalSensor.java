@@ -96,11 +96,12 @@ public class DHTDigitalSensor extends Device implements Sensor {
 	@Override
 	public Map<String, SensorValue> getValues() throws IOException {
 		float[] res = read();
+		//System.out.println(Arrays.toString(res));
 		// Only update values when data reading was successful.
-		if (res[0] != Float.NaN) {
+		if (!Float.isNaN(res[0])) {
 			temp.updateValue(res[0]);
 		}
-		if (res[1] != Float.NaN) {
+		if (!Float.isNaN(res[1])) {
 			hum.updateValue(res[1]);
 		}
 		return results;
